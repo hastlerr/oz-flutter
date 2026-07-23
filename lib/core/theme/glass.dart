@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart';
 
 enum GlassLevel { chrome, surface, overlay }
@@ -42,10 +44,22 @@ class GlassSpec {
 }
 
 abstract final class GlassTokens {
-  /// Every field of `LiquidGlassSettings` that matters visually is pinned
-  /// here per level, on purpose: relying on the package's constructor
-  /// defaults would mean a liquid_glass_renderer version bump could silently
-  /// reskin the whole app the next time its defaults change upstream.
+  /// Shader inputs that don't vary per [GlassLevel] — pinned once here,
+  /// at today's liquid_glass_renderer `LiquidGlassSettings` constructor
+  /// defaults, for the same reason the per-level [GlassSpec] fields are
+  /// pinned: leaving them to the package's defaults would mean a version
+  /// bump could silently change refraction/fringing/highlight direction.
+  static const refractiveIndex = 1.2;
+  static const chromaticAberration = 0.01;
+  static const lightAngle = 0.5 * math.pi;
+
+  /// Every visual field of `LiquidGlassSettings` is pinned, either per level
+  /// via [GlassSpec] (see above) or once for all levels via
+  /// [refractiveIndex]/[chromaticAberration]/[lightAngle]. `visibility` is
+  /// the one field intentionally left at its package default (1.0): it's
+  /// just an on/off multiplier over every other field (see
+  /// `LiquidGlassSettings.effective*` getters), not a visual choice of its
+  /// own, so there's nothing to pin.
   static const specs = {
     GlassLevel.chrome: GlassSpec(
       blur: 28,

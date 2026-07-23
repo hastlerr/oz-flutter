@@ -80,6 +80,9 @@ class _OzGlassLayerBody extends StatelessWidget {
         thickness: spec.thickness,
         lightIntensity: spec.lightIntensity,
         saturation: spec.saturation,
+        refractiveIndex: GlassTokens.refractiveIndex,
+        chromaticAberration: GlassTokens.chromaticAberration,
+        lightAngle: GlassTokens.lightAngle,
       ),
       child: child,
     );
