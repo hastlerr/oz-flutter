@@ -16,25 +16,43 @@ Future<T?> showGlassSheet<T>(
     context: context,
     builder: (context) => FractionallySizedBox(
       heightFactor: heightFactor,
-      child: GlassSurface(
-        level: GlassLevel.chrome,
-        radius: OzDims.radiusL,
-        child: SafeArea(
-          top: false,
-          child: Column(children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color:
-                    OzColors.inkSoft.resolveFrom(context).withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
+      // GlassSurface only exposes a single uniform `radius` (it doesn't
+      // support asymmetric corners) — round only the top corners one level
+      // up instead, over an otherwise square (radius: 0) GlassSurface.
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(OzDims.radiusL),
+        ),
+        child: GlassSurface(
+          level: GlassLevel.chrome,
+          radius: 0,
+          child: SafeArea(
+            top: false,
+            child: AnimatedPadding(
+              // showCupertinoModalPopup doesn't inset for the keyboard on
+              // its own — this keeps a future text field in [child] from
+              // being covered when it appears.
+              duration: const Duration(milliseconds: 150),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.viewInsetsOf(context).bottom,
               ),
+              child: Column(children: [
+                const SizedBox(height: 8),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: OzColors.inkSoft
+                        .resolveFrom(context)
+                        .withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Expanded(child: child),
+              ]),
             ),
-            const SizedBox(height: 8),
-            Expanded(child: child),
-          ]),
+          ),
         ),
       ),
     ),

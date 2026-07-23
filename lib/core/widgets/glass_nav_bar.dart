@@ -28,7 +28,12 @@ class GlassNavBar extends StatelessWidget {
         child: Row(children: [
           if (leading != null) ...[leading!, const SizedBox(width: 8)],
           Expanded(
-            child: Text(title, style: OzText.largeTitle(context), maxLines: 1),
+            child: Text(
+              title,
+              style: OzText.largeTitle(context),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           ?trailing,
         ]),
@@ -44,9 +49,8 @@ class GlassNavBar extends StatelessWidget {
               radius: 0,
               child: bar,
             )
-          : ColoredBox(
+          : KeyedSubtree(
               key: const ValueKey('p'),
-              color: const Color(0x00000000),
               child: bar,
             ),
     );

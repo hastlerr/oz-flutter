@@ -5,4 +5,6 @@ abstract final class OzDims {
   static const radius = 16.0;
   static const radiusL = 26.0;
   static const tabBarHeight = 64.0;
+  static const buttonHeight = 50.0;
+  static const searchBarHeight = 46.0;
 }
