@@ -1,0 +1,63 @@
+import 'package:flutter/cupertino.dart';
+
+import '../theme/colors.dart';
+import '../theme/glass.dart';
+import '../theme/typography.dart';
+import 'glass_surface.dart';
+
+/// A pill-shaped search field. When [enabled] is false it renders as static
+/// placeholder text instead of an editable field, so [onTap] can be used to
+/// tap through to a dedicated search screen.
+class GlassSearchBar extends StatelessWidget {
+  final String placeholder;
+  final ValueChanged<String>? onSubmitted;
+  final VoidCallback? onTap;
+  final TextEditingController? controller;
+  final bool enabled;
+  const GlassSearchBar({
+    super.key,
+    this.placeholder = 'Поиск',
+    this.onSubmitted,
+    this.onTap,
+    this.controller,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final inkSoft = OzColors.inkSoft.resolveFrom(context);
+    final content = Row(children: [
+      Icon(CupertinoIcons.search, size: 20, color: inkSoft),
+      const SizedBox(width: 8),
+      Expanded(
+        child: enabled
+            ? CupertinoTextField.borderless(
+                controller: controller,
+                placeholder: placeholder,
+                onSubmitted: onSubmitted,
+                style: OzText.body(context),
+                placeholderStyle: TextStyle(color: inkSoft, fontSize: 16),
+                padding: EdgeInsets.zero,
+              )
+            : Text(placeholder, style: TextStyle(color: inkSoft, fontSize: 16)),
+      ),
+    ]);
+
+    final bar = SizedBox(
+      height: 46,
+      child: GlassSurface(
+        level: GlassLevel.surface,
+        radius: 999,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        child: Align(alignment: Alignment.centerLeft, child: content),
+      ),
+    );
+
+    if (onTap == null) return bar;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: bar,
+    );
+  }
+}
