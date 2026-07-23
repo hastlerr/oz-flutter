@@ -3,21 +3,81 @@ import 'package:flutter/cupertino.dart';
 enum GlassLevel { chrome, surface, overlay }
 
 class GlassSpec {
+  /// Backdrop blur radius. Used by both the real shader (`LiquidGlassSettings.blur`)
+  /// and the fallback (`ImageFilter.blur`).
   final double blur;
-  final double tint;
+
+  /// Alpha of the tint color painted over/into the glass. Used by both paths.
+  final double tintOpacity;
+
+  /// Alpha of the 0.5pt white rim drawn around the fallback surface.
+  ///
+  /// Fallback-only: `LiquidRoundedSuperellipse`/`LiquidShape` carry a `side`
+  /// (`BorderSide`) field inherited from `OutlinedBorder`, but the real
+  /// shader-based glass renderer (`RenderLiquidGlass`/`RenderLiquidGlassLayer`
+  /// in liquid_glass_renderer 0.2.0-dev.4) never reads or paints `side` — only
+  /// `shape.getOuterPath`/`getInnerPath` are used, for clipping and geometry.
+  /// So on iOS there is no equivalent rim; the shader's own specular highlight
+  /// (`lightIntensity`/`lightAngle`) is what reads as an edge there instead.
   final double borderOpacity;
-  const GlassSpec(this.blur, this.tint, this.borderOpacity);
+
+  /// Shader-only: `LiquidGlassSettings.thickness`. No effect on the fallback
+  /// (plain `ImageFilter.blur` has no refraction/thickness concept).
+  final double thickness;
+
+  /// Shader-only: `LiquidGlassSettings.lightIntensity`.
+  final double lightIntensity;
+
+  /// Shader-only: `LiquidGlassSettings.saturation`.
+  final double saturation;
+
+  const GlassSpec({
+    required this.blur,
+    required this.tintOpacity,
+    required this.borderOpacity,
+    required this.thickness,
+    required this.lightIntensity,
+    required this.saturation,
+  });
 }
 
 abstract final class GlassTokens {
+  /// Every field of `LiquidGlassSettings` that matters visually is pinned
+  /// here per level, on purpose: relying on the package's constructor
+  /// defaults would mean a liquid_glass_renderer version bump could silently
+  /// reskin the whole app the next time its defaults change upstream.
   static const specs = {
-    GlassLevel.chrome: GlassSpec(28, 0.55, 0.28),
-    GlassLevel.surface: GlassSpec(18, 0.42, 0.18),
-    GlassLevel.overlay: GlassSpec(10, 0.30, 0.12),
+    GlassLevel.chrome: GlassSpec(
+      blur: 28,
+      tintOpacity: 0.55,
+      borderOpacity: 0.28,
+      thickness: 24,
+      lightIntensity: 0.6,
+      saturation: 1.4,
+    ),
+    GlassLevel.surface: GlassSpec(
+      blur: 18,
+      tintOpacity: 0.42,
+      borderOpacity: 0.18,
+      thickness: 16,
+      lightIntensity: 0.5,
+      saturation: 1.25,
+    ),
+    GlassLevel.overlay: GlassSpec(
+      blur: 10,
+      tintOpacity: 0.30,
+      borderOpacity: 0.12,
+      thickness: 10,
+      lightIntensity: 0.4,
+      saturation: 1.1,
+    ),
   };
+
   static Color tintColor(BuildContext c, GlassLevel l) {
     final b = CupertinoTheme.brightnessOf(c);
-    final base = b == Brightness.dark ? const Color(0xFF1A1E1B) : const Color(0xFFFFFFFF);
-    return base.withValues(alpha: specs[l]!.tint);
+    final base = b == Brightness.dark
+        ? const Color(0xFF1A1E1B)
+        : const Color(0xFFFFFFFF);
+    return base.withValues(alpha: specs[l]!.tintOpacity);
   }
 }

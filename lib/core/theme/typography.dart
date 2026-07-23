@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'colors.dart';
 
 abstract final class OzText {
-  static const _base = TextStyle(fontFamily: '.SF Pro Text', letterSpacing: -0.2);
+  static const _base =
+      TextStyle(fontFamily: 'CupertinoSystemText', letterSpacing: -0.2);
   static TextStyle largeTitle(BuildContext c) => _base.copyWith(
       fontSize: 34, fontWeight: FontWeight.w700, color: OzColors.ink.resolveFrom(c));
   static TextStyle title(BuildContext c) => _base.copyWith(

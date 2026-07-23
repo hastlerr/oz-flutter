@@ -16,16 +16,15 @@ abstract final class OzColors {
   // semantic
   static const danger = Color(0xFFE05252);
 
-  static CupertinoDynamicColor get accent =>
-      const CupertinoDynamicColor.withBrightness(
+  static const CupertinoDynamicColor accent =
+      CupertinoDynamicColor.withBrightness(
           color: emeraldLight, darkColor: emeraldDark);
-  static CupertinoDynamicColor get paper =>
-      const CupertinoDynamicColor.withBrightness(
+  static const CupertinoDynamicColor paper =
+      CupertinoDynamicColor.withBrightness(
           color: paperLight, darkColor: paperDark);
-  static CupertinoDynamicColor get ink =>
-      const CupertinoDynamicColor.withBrightness(
-          color: inkLight, darkColor: inkDark);
-  static CupertinoDynamicColor get inkSoft =>
-      const CupertinoDynamicColor.withBrightness(
+  static const CupertinoDynamicColor ink = CupertinoDynamicColor.withBrightness(
+      color: inkLight, darkColor: inkDark);
+  static const CupertinoDynamicColor inkSoft =
+      CupertinoDynamicColor.withBrightness(
           color: inkSoftLight, darkColor: inkSoftDark);
 }
