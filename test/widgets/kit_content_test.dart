@@ -5,12 +5,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oz_flutter/core/models/advertisement.dart';
-import 'package:oz_flutter/core/widgets/glass_button.dart';
-import 'package:oz_flutter/core/widgets/glass_card.dart';
-import 'package:oz_flutter/core/widgets/glass_chip.dart';
-import 'package:oz_flutter/core/widgets/glass_search_bar.dart';
-import 'package:oz_flutter/core/widgets/glass_sheet.dart';
 import 'package:oz_flutter/core/widgets/glass_surface.dart';
+import 'package:oz_flutter/core/widgets/oz_button.dart';
+import 'package:oz_flutter/core/widgets/oz_card.dart';
+import 'package:oz_flutter/core/widgets/oz_chip.dart';
+import 'package:oz_flutter/core/widgets/oz_search_bar.dart';
+import 'package:oz_flutter/core/widgets/oz_sheet.dart';
+import 'package:oz_flutter/core/widgets/oz_surface.dart';
 
 Map<String, dynamic> _readJson(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
@@ -30,10 +31,10 @@ void main() {
     });
   });
 
-  group('GlassCard', () {
+  group('OzCard', () {
     testWidgets('renders brand+model text, price, and badge text',
         (t) async {
-      await t.pumpWidget(CupertinoApp(home: GlassCard(ad: ad, onTap: () {})));
+      await t.pumpWidget(CupertinoApp(home: OzCard(ad: ad, onTap: () {})));
       await t.pump();
 
       expect(
@@ -49,14 +50,14 @@ void main() {
     testWidgets('shows "in stock" badge when inCountry is true', (t) async {
       final inStockAd = ad.copyWith(inCountry: true);
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: inStockAd, onTap: () {})));
+          CupertinoApp(home: OzCard(ad: inStockAd, onTap: () {})));
       await t.pump();
 
       expect(find.textContaining('В наличии'), findsOneWidget);
     });
 
     testWidgets('heart hidden when onFavorite is null', (t) async {
-      await t.pumpWidget(CupertinoApp(home: GlassCard(ad: ad, onTap: () {})));
+      await t.pumpWidget(CupertinoApp(home: OzCard(ad: ad, onTap: () {})));
       await t.pump();
 
       expect(find.byIcon(CupertinoIcons.heart), findsNothing);
@@ -67,7 +68,7 @@ void main() {
         (t) async {
       var tapped = false;
       await t.pumpWidget(CupertinoApp(
-        home: GlassCard(
+        home: OzCard(
           ad: ad.copyWith(isFavorite: false),
           onTap: () {},
           onFavorite: () => tapped = true,
@@ -85,7 +86,7 @@ void main() {
         (t) async {
       final noImageAd = ad.copyWith(images: const []);
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: noImageAd, onTap: () {})));
+          CupertinoApp(home: OzCard(ad: noImageAd, onTap: () {})));
       await t.pump();
 
       expect(find.byIcon(CupertinoIcons.car_detailed), findsOneWidget);
@@ -98,7 +99,7 @@ void main() {
         images: const [AdImage(picture: 'https://example.com/x.jpg')],
       );
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: withImageAd, onTap: () {})));
+          CupertinoApp(home: OzCard(ad: withImageAd, onTap: () {})));
       // Deliberately no pumpAndSettle: avoid resolving the fake network
       // image in a widget test — just confirm the widget was built.
       await t.pump();
@@ -109,10 +110,10 @@ void main() {
     testWidgets('onTap fires when the card is tapped', (t) async {
       var tapped = false;
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: ad, onTap: () => tapped = true)));
+          CupertinoApp(home: OzCard(ad: ad, onTap: () => tapped = true)));
       await t.pump();
 
-      await t.tap(find.byType(GlassCard));
+      await t.tap(find.byType(OzCard));
       await t.pump();
       expect(tapped, isTrue);
     });
@@ -121,7 +122,7 @@ void main() {
         (t) async {
       final noPriceAd = ad.copyWith(price: null, priceUsd: null);
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: noPriceAd, onTap: () {})));
+          CupertinoApp(home: OzCard(ad: noPriceAd, onTap: () {})));
       await t.pump();
 
       expect(find.text('\$—'), findsOneWidget);
@@ -130,7 +131,7 @@ void main() {
     testWidgets('renders no timestamp when updated is null', (t) async {
       final noUpdatedAd = ad.copyWith(updated: null);
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: noUpdatedAd, onTap: () {})));
+          CupertinoApp(home: OzCard(ad: noUpdatedAd, onTap: () {})));
       await t.pump();
 
       expect(find.textContaining('назад'), findsNothing);
@@ -142,7 +143,7 @@ void main() {
       final noCountryAd =
           ad.copyWith(inCountry: false, sourceCountry: null);
       await t.pumpWidget(
-          CupertinoApp(home: GlassCard(ad: noCountryAd, onTap: () {})));
+          CupertinoApp(home: OzCard(ad: noCountryAd, onTap: () {})));
       await t.pump();
 
       // Exact match (not textContaining) — no trailing flag/space.
@@ -150,25 +151,25 @@ void main() {
     });
 
     testWidgets(
-        'badge and favorite heart are solid fills — no extra GlassSurface per card',
+        'card, badge, and favorite heart are all solid — no glass anywhere',
         (t) async {
       await t.pumpWidget(CupertinoApp(
-        home: GlassCard(ad: ad, onTap: () {}, onFavorite: () {}),
+        home: OzCard(ad: ad, onTap: () {}, onFavorite: () {}),
       ));
       await t.pump();
 
-      // Only the card's own GlassLevel.surface GlassSurface — the badge and
-      // heart no longer stand up their own (mismatched-level) GlassSurfaces,
-      // which under a feed's OzGlassLayer(surface) would otherwise force up
-      // to 2 extra shader layers per card.
-      expect(find.byType(GlassSurface), findsOneWidget);
+      // Warm minimalism: only the card's own opaque OzSurface — the badge
+      // and heart are plain DecoratedBoxes, not extra surfaces — and no
+      // GlassSurface at all (glass stays reserved for the tab/nav chrome).
+      expect(find.byType(OzSurface), findsOneWidget);
+      expect(find.byType(GlassSurface), findsNothing);
     });
 
     testWidgets('favorite heart exposes button semantics with a state label',
         (t) async {
       final handle = t.ensureSemantics();
       await t.pumpWidget(CupertinoApp(
-        home: GlassCard(
+        home: OzCard(
           ad: ad.copyWith(isFavorite: false),
           onTap: () {},
           onFavorite: () {},
@@ -192,7 +193,7 @@ void main() {
         (t) async {
       await t.pumpWidget(CupertinoApp(
         home: Center(
-          child: SizedBox(width: 170, child: GlassCard(ad: ad, onTap: () {})),
+          child: SizedBox(width: 170, child: OzCard(ad: ad, onTap: () {})),
         ),
       ));
       await t.pump();
@@ -240,11 +241,11 @@ void main() {
     });
   });
 
-  group('GlassChip', () {
+  group('OzChip', () {
     testWidgets('fires onTap', (t) async {
       var tapped = false;
       await t.pumpWidget(CupertinoApp(
-        home: GlassChip(label: 'Внедорожник', selected: false, onTap: () => tapped = true),
+        home: OzChip(label: 'Внедорожник', selected: false, onTap: () => tapped = true),
       ));
 
       await t.tap(find.text('Внедорожник'));
@@ -255,7 +256,7 @@ void main() {
 
     testWidgets('renders label text regardless of selected state', (t) async {
       await t.pumpWidget(CupertinoApp(
-        home: GlassChip(label: 'Седан', selected: true, onTap: () {}),
+        home: OzChip(label: 'Седан', selected: true, onTap: () {}),
       ));
       await t.pump();
 
@@ -266,24 +267,24 @@ void main() {
         (t) async {
       await t.pumpWidget(CupertinoApp(
         home: Center(
-          child: GlassChip(label: 'X', selected: false, onTap: () {}),
+          child: OzChip(label: 'X', selected: false, onTap: () {}),
         ),
       ));
       await t.pump();
 
-      final size = t.getSize(find.byType(GlassChip));
+      final size = t.getSize(find.byType(OzChip));
       expect(size.height, greaterThanOrEqualTo(44));
     });
 
     testWidgets('exposes button/selected semantics', (t) async {
       final handle = t.ensureSemantics();
       await t.pumpWidget(CupertinoApp(
-        home: GlassChip(label: 'Ош', selected: true, onTap: () {}),
+        home: OzChip(label: 'Ош', selected: true, onTap: () {}),
       ));
       await t.pump();
 
       expect(
-        t.getSemantics(find.byType(GlassChip)),
+        t.getSemantics(find.byType(OzChip)),
         matchesSemantics(
           label: 'Ош',
           isButton: true,
@@ -297,11 +298,11 @@ void main() {
     });
   });
 
-  group('GlassButton', () {
+  group('OzButton', () {
     testWidgets('fires onPressed when enabled', (t) async {
       var tapped = false;
       await t.pumpWidget(CupertinoApp(
-        home: GlassButton(label: 'Сохранить', onPressed: () => tapped = true),
+        home: OzButton(label: 'Сохранить', onPressed: () => tapped = true),
       ));
 
       await t.tap(find.text('Сохранить'));
@@ -312,7 +313,7 @@ void main() {
 
     testWidgets('disabled (onPressed null) does not throw on tap', (t) async {
       await t.pumpWidget(const CupertinoApp(
-        home: GlassButton(label: 'Сохранить', onPressed: null),
+        home: OzButton(label: 'Сохранить', onPressed: null),
       ));
 
       await t.tap(find.text('Сохранить'));
@@ -321,22 +322,22 @@ void main() {
       expect(find.text('Сохранить'), findsOneWidget);
     });
 
-    testWidgets('outline (filled: false) renders inside a GlassSurface',
+    testWidgets('outline (filled: false) renders inside an OzSurface',
         (t) async {
       await t.pumpWidget(const CupertinoApp(
-        home: GlassButton(label: 'Отмена', filled: false, onPressed: null),
+        home: OzButton(label: 'Отмена', filled: false, onPressed: null),
       ));
       await t.pump();
 
-      expect(find.byType(GlassSurface), findsOneWidget);
+      expect(find.byType(OzSurface), findsOneWidget);
     });
 
     testWidgets('exposes enabled/disabled button semantics', (t) async {
       final handle = t.ensureSemantics();
       await t.pumpWidget(CupertinoApp(
         home: Column(children: [
-          GlassButton(label: 'Включена', onPressed: () {}),
-          const GlassButton(label: 'Выключена', onPressed: null),
+          OzButton(label: 'Включена', onPressed: () {}),
+          const OzButton(label: 'Выключена', onPressed: null),
         ]),
       ));
       await t.pump();
@@ -365,10 +366,10 @@ void main() {
     });
   });
 
-  group('GlassSearchBar', () {
+  group('OzSearchBar', () {
     testWidgets('shows placeholder text when disabled', (t) async {
       await t.pumpWidget(const CupertinoApp(
-        home: GlassSearchBar(enabled: false, placeholder: 'Найти авто'),
+        home: OzSearchBar(enabled: false, placeholder: 'Найти авто'),
       ));
 
       expect(find.text('Найти авто'), findsOneWidget);
@@ -378,7 +379,7 @@ void main() {
     testWidgets('shows an editable CupertinoTextField when enabled',
         (t) async {
       await t.pumpWidget(const CupertinoApp(
-        home: GlassSearchBar(enabled: true, placeholder: 'Найти авто'),
+        home: OzSearchBar(enabled: true, placeholder: 'Найти авто'),
       ));
 
       expect(find.byType(CupertinoTextField), findsOneWidget);
@@ -387,21 +388,21 @@ void main() {
     testWidgets('onTap fires (tap-through when disabled)', (t) async {
       var tapped = false;
       await t.pumpWidget(CupertinoApp(
-        home: GlassSearchBar(enabled: false, onTap: () => tapped = true),
+        home: OzSearchBar(enabled: false, onTap: () => tapped = true),
       ));
 
-      await t.tap(find.byType(GlassSearchBar));
+      await t.tap(find.byType(OzSearchBar));
       await t.pump();
       expect(tapped, isTrue);
     });
   });
 
-  group('showGlassSheet', () {
+  group('showOzSheet', () {
     testWidgets('opens a modal popup hosting the given child', (t) async {
       await t.pumpWidget(CupertinoApp(
         home: Builder(builder: (context) {
           return CupertinoButton(
-            onPressed: () => showGlassSheet<void>(
+            onPressed: () => showOzSheet<void>(
               context,
               child: const Center(child: Text('SHEET CONTENT')),
             ),
@@ -414,7 +415,7 @@ void main() {
       await t.pumpAndSettle();
 
       expect(find.text('SHEET CONTENT'), findsOneWidget);
-      expect(find.byType(GlassSurface), findsOneWidget);
+      expect(find.byType(OzSurface), findsOneWidget);
     });
 
     testWidgets('rounds only the top corners', (t) async {
@@ -422,7 +423,7 @@ void main() {
         home: Builder(builder: (context) {
           return CupertinoButton(
             onPressed: () =>
-                showGlassSheet<void>(context, child: const SizedBox()),
+                showOzSheet<void>(context, child: const SizedBox()),
             child: const Text('open'),
           );
         }),
@@ -432,7 +433,7 @@ void main() {
       await t.pumpAndSettle();
 
       final clip = t.widget<ClipRRect>(find.ancestor(
-        of: find.byType(GlassSurface),
+        of: find.byType(OzSurface),
         matching: find.byType(ClipRRect),
       ));
       final radius = clip.borderRadius as BorderRadius;
@@ -448,7 +449,7 @@ void main() {
         home: Builder(builder: (context) {
           return CupertinoButton(
             onPressed: () =>
-                showGlassSheet<void>(context, child: const SizedBox()),
+                showOzSheet<void>(context, child: const SizedBox()),
             child: const Text('open'),
           );
         }),

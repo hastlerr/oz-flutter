@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:oz_flutter/core/theme/colors.dart';
 import 'package:oz_flutter/core/theme/dims.dart';
 import 'package:oz_flutter/core/widgets/glass_nav_bar.dart';
-import 'package:oz_flutter/core/widgets/glass_scaffold.dart';
+import 'package:oz_flutter/core/widgets/oz_scaffold.dart';
 import 'package:oz_flutter/core/widgets/glass_surface.dart';
 import 'package:oz_flutter/core/widgets/glass_tab_bar.dart';
 
@@ -122,10 +122,10 @@ void main() {
     });
   });
 
-  group('GlassScaffold', () {
+  group('OzScaffold', () {
     testWidgets('hosts body and tabBar', (t) async {
       await t.pumpWidget(const CupertinoApp(
-        home: GlassScaffold(
+        home: OzScaffold(
           body: Center(child: Text('BODY')),
           tabBar: Text('TABBAR'),
         ),
@@ -137,7 +137,7 @@ void main() {
 
     testWidgets('hosts navBar above body', (t) async {
       await t.pumpWidget(const CupertinoApp(
-        home: GlassScaffold(
+        home: OzScaffold(
           navBar: Text('NAVBAR'),
           body: Center(child: Text('BODY')),
         ),
@@ -152,7 +152,7 @@ void main() {
         (t) async {
       late double bottom;
       await t.pumpWidget(CupertinoApp(
-        home: GlassScaffold(
+        home: OzScaffold(
           tabBar: const Text('TABBAR'),
           body: Builder(builder: (context) {
             bottom = MediaQuery.paddingOf(context).bottom;
@@ -168,7 +168,7 @@ void main() {
         (t) async {
       late double top;
       await t.pumpWidget(CupertinoApp(
-        home: GlassScaffold(
+        home: OzScaffold(
           navBar: const Text('NAVBAR'),
           body: Builder(builder: (context) {
             top = MediaQuery.paddingOf(context).top;
@@ -184,7 +184,7 @@ void main() {
         (t) async {
       late EdgeInsets padding;
       await t.pumpWidget(CupertinoApp(
-        home: GlassScaffold(
+        home: OzScaffold(
           body: Builder(builder: (context) {
             padding = MediaQuery.paddingOf(context);
             return const SizedBox();

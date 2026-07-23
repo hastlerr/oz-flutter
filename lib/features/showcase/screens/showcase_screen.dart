@@ -9,21 +9,26 @@ import '../../../core/theme/glass.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_retry.dart';
-import '../../../core/widgets/glass_button.dart';
-import '../../../core/widgets/glass_card.dart';
-import '../../../core/widgets/glass_chip.dart';
 import '../../../core/widgets/glass_nav_bar.dart';
-import '../../../core/widgets/glass_scaffold.dart';
-import '../../../core/widgets/glass_search_bar.dart';
-import '../../../core/widgets/glass_sheet.dart';
 import '../../../core/widgets/glass_surface.dart';
 import '../../../core/widgets/glass_tab_bar.dart';
-import '../../../core/widgets/oz_glass_layer.dart';
+import '../../../core/widgets/oz_button.dart';
+import '../../../core/widgets/oz_card.dart';
+import '../../../core/widgets/oz_chip.dart';
+import '../../../core/widgets/oz_scaffold.dart';
+import '../../../core/widgets/oz_search_bar.dart';
+import '../../../core/widgets/oz_sheet.dart';
+import '../../../core/widgets/oz_surface.dart';
 import '../../../core/widgets/shimmer_card.dart';
 
 /// Debug/witness screen presenting every kit component in one place — the
 /// "component gallery" the design system is judged by. Not part of the
 /// user-facing app flow.
+///
+/// Warm minimalism: glass is reserved for [GlassTabBar]/[GlassNavBar] — the
+/// floating chrome, exactly where iOS itself puts glass. Everything else
+/// (cards, buttons, chips, search, sheets) is a plain opaque [OzSurface] —
+/// content is the hero, chrome recedes.
 class ShowcaseScreen extends StatefulWidget {
   const ShowcaseScreen({
     super.key,
@@ -73,7 +78,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => GlassScaffold(
+  Widget build(BuildContext context) => OzScaffold(
         navBar: GlassNavBar(title: 'OZ Kit', showGlass: _showNavGlass),
         tabBar: GlassTabBar(
           index: _tabIndex,
@@ -86,7 +91,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
             GlassTabItem(CupertinoIcons.person_fill, 'Профиль'),
           ],
         ),
-        // GlassScaffold now reserves top/bottom MediaQuery padding for the
+        // OzScaffold now reserves top/bottom MediaQuery padding for the
         // navBar/tabBar it paints in its Stack (see its doc comment) — read
         // that back here (via a Builder, so `context` is inside the
         // scaffold's own MediaQuery override) instead of re-deriving the bar
@@ -107,7 +112,9 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
               const SizedBox(height: 28),
               _typographySection(context),
               const SizedBox(height: 28),
-              _glassLevelsSection(context),
+              _chromeSection(context),
+              const SizedBox(height: 28),
+              _surfacesSection(context),
               const SizedBox(height: 28),
               _cardsSection(context),
               const SizedBox(height: 28),
@@ -131,6 +138,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
       _Swatch('gold', OzColors.gold),
       _Swatch('danger', OzColors.danger),
       _Swatch('paper', OzColors.paper.resolveFrom(context)),
+      _Swatch('surface', OzColors.surface.resolveFrom(context)),
       _Swatch('ink', OzColors.ink.resolveFrom(context)),
       _Swatch('inkSoft', OzColors.inkSoft.resolveFrom(context)),
     ];
@@ -138,14 +146,15 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _SectionLabel('Палитра'),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          spacing: 4,
+          runSpacing: 12,
           children: [
             for (final s in swatches)
               SizedBox(
                 // Fixed width so a caption wider than the 44pt swatch (e.g.
-                // "inkSoft") can't push this Row past the screen edge.
-                width: 48,
+                // "inkSoft") can't push this row past the screen edge.
+                width: 56,
                 child: Column(
                   children: [
                     Container(
@@ -196,14 +205,19 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
         ],
       );
 
-  // ---- 3. Стекло 3 уровня ----------------------------------------------
+  // ---- 3. Хром ------------------------------------------------------------
 
-  Widget _glassLevelsSection(BuildContext context) {
+  /// Glass, kept small and honest: the design pivot rejected an all-glass
+  /// look ("слишком ликвид гласс") in favor of warm minimalism, where glass
+  /// is reserved for exactly the chrome iOS itself renders in glass —
+  /// [GlassTabBar] and [GlassNavBar] once scrolled. Everything else in this
+  /// gallery below is a solid [OzSurface].
+  Widget _chromeSection(BuildContext context) {
     final accent = OzColors.accent.resolveFrom(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionLabel('Стекло — 3 уровня'),
+        const _SectionLabel('Хром'),
         ClipRRect(
           borderRadius: BorderRadius.circular(OzDims.radiusL),
           child: Stack(
@@ -217,7 +231,6 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
                       colors: [
                         accent.withValues(alpha: 0.6),
                         OzColors.gold.withValues(alpha: 0.6),
-                        OzColors.danger.withValues(alpha: 0.6),
                       ],
                     ),
                   ),
@@ -225,22 +238,27 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _levelBlock(context, GlassLevel.chrome, 'chrome'),
+                child: GlassSurface(
+                  level: GlassLevel.chrome,
+                  child: SizedBox(
+                    height: 64,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          'стекло — только таб-бар и нав-бар',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontFamily: 'Menlo',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: OzColors.ink.resolveFrom(context),
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child:
-                          _levelBlock(context, GlassLevel.surface, 'surface'),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child:
-                          _levelBlock(context, GlassLevel.overlay, 'overlay'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -250,9 +268,40 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
     );
   }
 
-  Widget _levelBlock(BuildContext context, GlassLevel level, String name) =>
-      GlassSurface(
-        level: level,
+  // ---- 4. Поверхности -------------------------------------------------
+
+  /// The solid counterpart to the glass strip above — every non-chrome
+  /// component in this gallery builds on one of these three [OzSurface]
+  /// configurations.
+  Widget _surfacesSection(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionLabel('Поверхности'),
+          Row(
+            children: [
+              Expanded(child: _surfaceBlock(context, 'plain')),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _surfaceBlock(context, 'bordered', bordered: true),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _surfaceBlock(context, 'shadowed', shadowed: true),
+              ),
+            ],
+          ),
+        ],
+      );
+
+  Widget _surfaceBlock(
+    BuildContext context,
+    String name, {
+    bool bordered = false,
+    bool shadowed = false,
+  }) =>
+      OzSurface(
+        bordered: bordered,
+        shadowed: shadowed,
         child: SizedBox(
           height: 72,
           child: Center(
@@ -269,7 +318,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
         ),
       );
 
-  // ---- 4. Карточка объявления -------------------------------------------
+  // ---- 5. Карточка объявления -------------------------------------------
 
   Widget _cardsSection(BuildContext context) {
     final inStock = Advertisement(
@@ -317,59 +366,55 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _SectionLabel('Карточка объявления'),
-        // Stacked full-width (not a 2-up Row): at this screen's ~360pt
-        // content width, a side-by-side squeeze leaves each card only
-        // ~150pt of internal content width, which overflows GlassCard's
-        // price/timestamp row (a pre-existing GlassCard limitation — see
-        // task report). Full width is also the more realistic single-column
-        // feed presentation.
-        OzGlassLayer(
-          level: GlassLevel.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              GlassCard(ad: inStock, onTap: () {}, onFavorite: () {}),
-              const SizedBox(height: 12),
-              GlassCard(ad: preOrder, onTap: () {}, onFavorite: () {}),
-            ],
-          ),
+        // Stacked full-width (not a 2-up Row): the more realistic
+        // single-column feed presentation for this screen's ~360pt content
+        // width. (OzCard's price/timestamp row is Flexible/FittedBox-based
+        // and stays overflow-free even much narrower than that, e.g. a
+        // future 2-up grid — see its widget tests.)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            OzCard(ad: inStock, onTap: () {}, onFavorite: () {}),
+            const SizedBox(height: 12),
+            OzCard(ad: preOrder, onTap: () {}, onFavorite: () {}),
+          ],
         ),
       ],
     );
   }
 
-  // ---- 5. Кнопки и чипы --------------------------------------------------
+  // ---- 6. Кнопки и чипы --------------------------------------------------
 
   Widget _buttonsSection(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionLabel('Кнопки и чипы'),
-          GlassButton(label: 'Продолжить', onPressed: () {}),
+          OzButton(label: 'Продолжить', onPressed: () {}),
           const SizedBox(height: 12),
-          const GlassButton(label: 'Недоступно'),
+          const OzButton(label: 'Недоступно'),
           const SizedBox(height: 12),
-          GlassButton(label: 'Подробнее', filled: false, onPressed: () {}),
+          OzButton(label: 'Подробнее', filled: false, onPressed: () {}),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              GlassChip(
+              OzChip(
                 label: 'Все',
                 selected: _chipIndex == 0,
                 onTap: () => setState(() => _chipIndex = 0),
               ),
-              GlassChip(
+              OzChip(
                 label: 'Бишкек',
                 selected: _chipIndex == 1,
                 onTap: () => setState(() => _chipIndex = 1),
               ),
-              GlassChip(
+              OzChip(
                 label: 'Ош',
                 selected: _chipIndex == 2,
                 onTap: () => setState(() => _chipIndex = 2),
               ),
-              GlassChip(
+              OzChip(
                 label: 'Под заказ',
                 selected: _chipIndex == 3,
                 onTap: () => setState(() => _chipIndex = 3),
@@ -379,28 +424,28 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
         ],
       );
 
-  // ---- 6. Поиск -----------------------------------------------------------
+  // ---- 7. Поиск -----------------------------------------------------------
 
   Widget _searchSection(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionLabel('Поиск'),
-          GlassSearchBar(placeholder: 'Марка, модель, год', onSubmitted: (_) {}),
+          OzSearchBar(placeholder: 'Марка, модель, год', onSubmitted: (_) {}),
           const SizedBox(height: 12),
-          const GlassSearchBar(placeholder: 'Поиск недоступен', enabled: false),
+          const OzSearchBar(placeholder: 'Поиск недоступен', enabled: false),
         ],
       );
 
-  // ---- 7. Шит --------------------------------------------------------------
+  // ---- 8. Шит --------------------------------------------------------------
 
   Widget _sheetSection(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionLabel('Шит'),
-          GlassButton(
+          OzButton(
             label: 'Открыть шит',
             filled: false,
-            onPressed: () => showGlassSheet(
+            onPressed: () => showOzSheet(
               context,
               child: const _SheetDemo(),
             ),
@@ -408,7 +453,7 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
         ],
       );
 
-  // ---- 8. Состояния --------------------------------------------------------
+  // ---- 9. Состояния --------------------------------------------------------
 
   Widget _statesSection(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,7 +501,7 @@ class _SectionLabel extends StatelessWidget {
 }
 
 /// Body of the demo sheet opened from the "Шит" section — proves the
-/// grabber handle and glass chrome of [showGlassSheet].
+/// grabber handle and solid opaque surface of [showOzSheet].
 class _SheetDemo extends StatelessWidget {
   const _SheetDemo();
 
@@ -469,8 +514,9 @@ class _SheetDemo extends StatelessWidget {
             Text('О дизайн-системе', style: OzText.title(context)),
             const SizedBox(height: 12),
             Text(
-              'Этот шит открывается поверх экрана в стекле уровня chrome, '
-              'с ручкой-грабером сверху и произвольным высотным фактором.',
+              'Этот шит открывается поверх экрана на сплошной непрозрачной '
+              'поверхности, с ручкой-грабером сверху и произвольным '
+              'высотным фактором.',
               style: OzText.body(context),
             ),
             const SizedBox(height: 12),
