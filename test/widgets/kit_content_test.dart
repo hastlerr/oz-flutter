@@ -116,6 +116,128 @@ void main() {
       await t.pump();
       expect(tapped, isTrue);
     });
+
+    testWidgets('shows an em dash when both price and priceUsd are null',
+        (t) async {
+      final noPriceAd = ad.copyWith(price: null, priceUsd: null);
+      await t.pumpWidget(
+          CupertinoApp(home: GlassCard(ad: noPriceAd, onTap: () {})));
+      await t.pump();
+
+      expect(find.text('\$—'), findsOneWidget);
+    });
+
+    testWidgets('renders no timestamp when updated is null', (t) async {
+      final noUpdatedAd = ad.copyWith(updated: null);
+      await t.pumpWidget(
+          CupertinoApp(home: GlassCard(ad: noUpdatedAd, onTap: () {})));
+      await t.pump();
+
+      expect(find.textContaining('назад'), findsNothing);
+      expect(find.text('только что'), findsNothing);
+    });
+
+    testWidgets('badge omits the flag when sourceCountry is null',
+        (t) async {
+      final noCountryAd =
+          ad.copyWith(inCountry: false, sourceCountry: null);
+      await t.pumpWidget(
+          CupertinoApp(home: GlassCard(ad: noCountryAd, onTap: () {})));
+      await t.pump();
+
+      // Exact match (not textContaining) — no trailing flag/space.
+      expect(find.text('Под заказ'), findsOneWidget);
+    });
+
+    testWidgets(
+        'badge and favorite heart are solid fills — no extra GlassSurface per card',
+        (t) async {
+      await t.pumpWidget(CupertinoApp(
+        home: GlassCard(ad: ad, onTap: () {}, onFavorite: () {}),
+      ));
+      await t.pump();
+
+      // Only the card's own GlassLevel.surface GlassSurface — the badge and
+      // heart no longer stand up their own (mismatched-level) GlassSurfaces,
+      // which under a feed's OzGlassLayer(surface) would otherwise force up
+      // to 2 extra shader layers per card.
+      expect(find.byType(GlassSurface), findsOneWidget);
+    });
+
+    testWidgets('favorite heart exposes button semantics with a state label',
+        (t) async {
+      final handle = t.ensureSemantics();
+      await t.pumpWidget(CupertinoApp(
+        home: GlassCard(
+          ad: ad.copyWith(isFavorite: false),
+          onTap: () {},
+          onFavorite: () {},
+        ),
+      ));
+      await t.pump();
+
+      expect(
+        t.getSemantics(find.byIcon(CupertinoIcons.heart)),
+        matchesSemantics(
+          label: 'В избранное',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+
+      handle.dispose();
+    });
+
+    testWidgets('renders without exceptions at a narrow 170pt width',
+        (t) async {
+      await t.pumpWidget(CupertinoApp(
+        home: Center(
+          child: SizedBox(width: 170, child: GlassCard(ad: ad, onTap: () {})),
+        ),
+      ));
+      await t.pump();
+
+      expect(t.takeException(), isNull);
+    });
+  });
+
+  group('relativeTime', () {
+    final now = DateTime(2026, 1, 10, 12, 0);
+
+    test('under an hour ago -> "только что"', () {
+      expect(
+        relativeTime(now.subtract(const Duration(minutes: 30)), now: now),
+        'только что',
+      );
+    });
+
+    test('a few hours ago -> "N ч. назад"', () {
+      expect(
+        relativeTime(now.subtract(const Duration(hours: 5)), now: now),
+        '5 ч. назад',
+      );
+    });
+
+    test('a few days ago -> "N дн. назад"', () {
+      expect(
+        relativeTime(now.subtract(const Duration(days: 3)), now: now),
+        '3 дн. назад',
+      );
+    });
+
+    test('exactly on an hour boundary counts as that many hours', () {
+      expect(
+        relativeTime(now.subtract(const Duration(hours: 1)), now: now),
+        '1 ч. назад',
+      );
+    });
+
+    test('exactly on a day boundary counts as that many days', () {
+      expect(
+        relativeTime(now.subtract(const Duration(days: 1)), now: now),
+        '1 дн. назад',
+      );
+    });
   });
 
   group('GlassChip', () {
@@ -138,6 +260,40 @@ void main() {
       await t.pump();
 
       expect(find.text('Седан'), findsOneWidget);
+    });
+
+    testWidgets('hit target is at least 44pt tall even though the pill is shorter',
+        (t) async {
+      await t.pumpWidget(CupertinoApp(
+        home: Center(
+          child: GlassChip(label: 'X', selected: false, onTap: () {}),
+        ),
+      ));
+      await t.pump();
+
+      final size = t.getSize(find.byType(GlassChip));
+      expect(size.height, greaterThanOrEqualTo(44));
+    });
+
+    testWidgets('exposes button/selected semantics', (t) async {
+      final handle = t.ensureSemantics();
+      await t.pumpWidget(CupertinoApp(
+        home: GlassChip(label: 'Ош', selected: true, onTap: () {}),
+      ));
+      await t.pump();
+
+      expect(
+        t.getSemantics(find.byType(GlassChip)),
+        matchesSemantics(
+          label: 'Ош',
+          isButton: true,
+          isSelected: true,
+          hasSelectedState: true,
+          hasTapAction: true,
+        ),
+      );
+
+      handle.dispose();
     });
   });
 
@@ -173,6 +329,39 @@ void main() {
       await t.pump();
 
       expect(find.byType(GlassSurface), findsOneWidget);
+    });
+
+    testWidgets('exposes enabled/disabled button semantics', (t) async {
+      final handle = t.ensureSemantics();
+      await t.pumpWidget(CupertinoApp(
+        home: Column(children: [
+          GlassButton(label: 'Включена', onPressed: () {}),
+          const GlassButton(label: 'Выключена', onPressed: null),
+        ]),
+      ));
+      await t.pump();
+
+      expect(
+        t.getSemantics(find.text('Включена')),
+        matchesSemantics(
+          label: 'Включена',
+          isButton: true,
+          isEnabled: true,
+          hasEnabledState: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(
+        t.getSemantics(find.text('Выключена')),
+        matchesSemantics(
+          label: 'Выключена',
+          isButton: true,
+          isEnabled: false,
+          hasEnabledState: true,
+        ),
+      );
+
+      handle.dispose();
     });
   });
 
@@ -226,6 +415,56 @@ void main() {
 
       expect(find.text('SHEET CONTENT'), findsOneWidget);
       expect(find.byType(GlassSurface), findsOneWidget);
+    });
+
+    testWidgets('rounds only the top corners', (t) async {
+      await t.pumpWidget(CupertinoApp(
+        home: Builder(builder: (context) {
+          return CupertinoButton(
+            onPressed: () =>
+                showGlassSheet<void>(context, child: const SizedBox()),
+            child: const Text('open'),
+          );
+        }),
+      ));
+
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+
+      final clip = t.widget<ClipRRect>(find.ancestor(
+        of: find.byType(GlassSurface),
+        matching: find.byType(ClipRRect),
+      ));
+      final radius = clip.borderRadius as BorderRadius;
+      expect(radius.topLeft.x, greaterThan(0));
+      expect(radius.topRight.x, greaterThan(0));
+      expect(radius.bottomLeft, Radius.zero);
+      expect(radius.bottomRight, Radius.zero);
+    });
+
+    testWidgets('pads the sheet body by the live keyboard inset', (t) async {
+      addTearDown(t.view.resetViewInsets);
+      await t.pumpWidget(CupertinoApp(
+        home: Builder(builder: (context) {
+          return CupertinoButton(
+            onPressed: () =>
+                showGlassSheet<void>(context, child: const SizedBox()),
+            child: const Text('open'),
+          );
+        }),
+      ));
+
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+
+      t.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await t.pump();
+      await t.pump(const Duration(milliseconds: 200));
+
+      final padding =
+          t.widget<AnimatedPadding>(find.byType(AnimatedPadding)).padding
+              as EdgeInsets;
+      expect(padding.bottom, greaterThan(0));
     });
   });
 }

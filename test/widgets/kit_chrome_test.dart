@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oz_flutter/core/theme/colors.dart';
+import 'package:oz_flutter/core/theme/dims.dart';
 import 'package:oz_flutter/core/widgets/glass_nav_bar.dart';
 import 'package:oz_flutter/core/widgets/glass_scaffold.dart';
 import 'package:oz_flutter/core/widgets/glass_surface.dart';
@@ -59,6 +60,66 @@ void main() {
       expect(iconColorFor(t, 'Поиск'), accent);
       expect(iconColorFor(t, 'Главная'), isNot(accent));
     });
+
+    testWidgets(
+        'fits 5 real-world-length items at 393x852 with no overflow',
+        (t) async {
+      // Regression test for the review-round tab bar overflow: the
+      // showcase's real item set, at a real phone width.
+      const realItems = [
+        GlassTabItem(CupertinoIcons.house_fill, 'Главная'),
+        GlassTabItem(CupertinoIcons.square_grid_2x2_fill, 'Каталог'),
+        GlassTabItem(CupertinoIcons.plus_circle_fill, 'Подать'),
+        GlassTabItem(CupertinoIcons.heart_fill, 'Избранное'),
+        GlassTabItem(CupertinoIcons.person_fill, 'Профиль'),
+      ];
+      await t.binding.setSurfaceSize(const Size(393, 852));
+      t.view.physicalSize = const Size(393, 852);
+      t.view.devicePixelRatio = 1.0;
+      addTearDown(t.view.reset);
+      addTearDown(() => t.binding.setSurfaceSize(null));
+
+      await t.pumpWidget(CupertinoApp(
+        home: Align(
+          alignment: Alignment.bottomCenter,
+          child: GlassTabBar(index: 0, items: realItems, onTap: (_) {}),
+        ),
+      ));
+      await t.pumpAndSettle();
+
+      expect(t.takeException(), isNull);
+    });
+
+    testWidgets('exposes tab semantics (button, selected, label)', (t) async {
+      final handle = t.ensureSemantics();
+      await t.pumpWidget(CupertinoApp(
+        home: GlassTabBar(index: 0, items: items, onTap: (_) {}),
+      ));
+      await t.pumpAndSettle();
+
+      expect(
+        t.getSemantics(find.text('Главная')),
+        matchesSemantics(
+          label: 'Главная',
+          isButton: true,
+          isSelected: true,
+          hasSelectedState: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(
+        t.getSemantics(find.text('Поиск')),
+        matchesSemantics(
+          label: 'Поиск',
+          isButton: true,
+          isSelected: false,
+          hasSelectedState: true,
+          hasTapAction: true,
+        ),
+      );
+
+      handle.dispose();
+    });
   });
 
   group('GlassScaffold', () {
@@ -84,6 +145,54 @@ void main() {
 
       expect(find.text('NAVBAR'), findsOneWidget);
       expect(find.text('BODY'), findsOneWidget);
+    });
+
+    testWidgets(
+        'pads body MediaQuery bottom by tabBarHeight+10 when tabBar is set',
+        (t) async {
+      late double bottom;
+      await t.pumpWidget(CupertinoApp(
+        home: GlassScaffold(
+          tabBar: const Text('TABBAR'),
+          body: Builder(builder: (context) {
+            bottom = MediaQuery.paddingOf(context).bottom;
+            return const SizedBox();
+          }),
+        ),
+      ));
+
+      expect(bottom, OzDims.tabBarHeight + 10);
+    });
+
+    testWidgets('pads body MediaQuery top by ~64 when navBar is set',
+        (t) async {
+      late double top;
+      await t.pumpWidget(CupertinoApp(
+        home: GlassScaffold(
+          navBar: const Text('NAVBAR'),
+          body: Builder(builder: (context) {
+            top = MediaQuery.paddingOf(context).top;
+            return const SizedBox();
+          }),
+        ),
+      ));
+
+      expect(top, 64);
+    });
+
+    testWidgets('does not pad body MediaQuery when no bars are set',
+        (t) async {
+      late EdgeInsets padding;
+      await t.pumpWidget(CupertinoApp(
+        home: GlassScaffold(
+          body: Builder(builder: (context) {
+            padding = MediaQuery.paddingOf(context);
+            return const SizedBox();
+          }),
+        ),
+      ));
+
+      expect(padding, EdgeInsets.zero);
     });
   });
 

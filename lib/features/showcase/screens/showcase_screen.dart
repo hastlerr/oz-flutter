@@ -86,32 +86,41 @@ class _ShowcaseScreenState extends State<ShowcaseScreen> {
             GlassTabItem(CupertinoIcons.person_fill, 'Профиль'),
           ],
         ),
-        body: ListView(
-          controller: _scroll,
-          padding: const EdgeInsets.fromLTRB(
-            OzDims.pad,
-            8,
-            OzDims.pad,
-            OzDims.tabBarHeight + 40,
-          ),
-          children: [
-            _paletteSection(context),
-            const SizedBox(height: 28),
-            _typographySection(context),
-            const SizedBox(height: 28),
-            _glassLevelsSection(context),
-            const SizedBox(height: 28),
-            _cardsSection(context),
-            const SizedBox(height: 28),
-            _buttonsSection(context),
-            const SizedBox(height: 28),
-            _searchSection(context),
-            const SizedBox(height: 28),
-            _sheetSection(context),
-            const SizedBox(height: 28),
-            _statesSection(context),
-          ],
-        ),
+        // GlassScaffold now reserves top/bottom MediaQuery padding for the
+        // navBar/tabBar it paints in its Stack (see its doc comment) — read
+        // that back here (via a Builder, so `context` is inside the
+        // scaffold's own MediaQuery override) instead of re-deriving the bar
+        // heights by hand; only the small breathing-room additions (8pt
+        // top, 24pt bottom) are this screen's own.
+        body: Builder(builder: (context) {
+          final safe = MediaQuery.paddingOf(context);
+          return ListView(
+            controller: _scroll,
+            padding: EdgeInsets.fromLTRB(
+              OzDims.pad,
+              safe.top + 8,
+              OzDims.pad,
+              safe.bottom + 24,
+            ),
+            children: [
+              _paletteSection(context),
+              const SizedBox(height: 28),
+              _typographySection(context),
+              const SizedBox(height: 28),
+              _glassLevelsSection(context),
+              const SizedBox(height: 28),
+              _cardsSection(context),
+              const SizedBox(height: 28),
+              _buttonsSection(context),
+              const SizedBox(height: 28),
+              _searchSection(context),
+              const SizedBox(height: 28),
+              _sheetSection(context),
+              const SizedBox(height: 28),
+              _statesSection(context),
+            ],
+          );
+        }),
       );
 
   // ---- 1. Палитра ----------------------------------------------------
