@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import '../theme/colors.dart';
 import '../theme/dims.dart';
 
-/// Page shell: paper background with a soft accent glow, hosting an optional
-/// [navBar] and floating [tabBar] over [body].
+/// Page shell: warm paper background with a soft accent glow, hosting an
+/// optional [navBar] and floating [tabBar] over [body].
 ///
 /// ### Bottom/top inset convention
 ///
@@ -26,11 +26,11 @@ import '../theme/dims.dart';
 /// explicit `padding`, or content wrapped in `SafeArea` — automatically picks
 /// this up (that's how `MediaQuery.paddingOf` propagates) and clears both
 /// bars without the caller hard-coding bar heights itself.
-class GlassScaffold extends StatelessWidget {
+class OzScaffold extends StatelessWidget {
   final Widget body;
   final Widget? tabBar;
   final Widget? navBar;
-  const GlassScaffold({
+  const OzScaffold({
     super.key,
     required this.body,
     this.tabBar,
@@ -52,13 +52,17 @@ class GlassScaffold extends StatelessWidget {
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
+              // Warm minimalism: content is the hero, so this glow is barely
+              // there — just enough to keep the paper background from
+              // feeling flat, toned well down from the earlier glass-forward
+              // look (was 0.10/0.18 light/dark).
               gradient: RadialGradient(
                 center: const Alignment(0.9, -1.2),
                 radius: 1.4,
                 colors: [
                   OzColors.accent
                       .resolveFrom(context)
-                      .withValues(alpha: dark ? 0.18 : 0.10),
+                      .withValues(alpha: dark ? 0.10 : 0.05),
                   OzColors.paper.resolveFrom(context),
                 ],
               ),

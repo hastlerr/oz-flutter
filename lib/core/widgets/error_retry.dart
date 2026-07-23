@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import 'empty_state.dart';
-import 'glass_button.dart';
+import 'oz_button.dart';
 
 /// Standard "load failed" state: icon, message, and a retry button wired to
 /// [onRetry].
@@ -21,7 +21,7 @@ class ErrorRetry extends StatelessWidget {
         subtitle: 'Проверьте соединение и попробуйте ещё раз',
         action: SizedBox(
           width: 180,
-          child: GlassButton(label: 'Повторить', onPressed: onRetry),
+          child: OzButton(label: 'Повторить', onPressed: onRetry),
         ),
       );
 }

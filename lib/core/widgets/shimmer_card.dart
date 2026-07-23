@@ -3,8 +3,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../theme/dims.dart';
 
-/// Loading placeholder shaped like a [GlassCard], shimmering while a feed
-/// loads.
+/// Loading placeholder shaped like an OzCard, shimmering while a feed loads.
 class ShimmerCard extends StatelessWidget {
   final double height;
   const ShimmerCard({super.key, this.height = 220});

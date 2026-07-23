@@ -2,14 +2,13 @@ import 'package:flutter/cupertino.dart';
 
 import '../theme/colors.dart';
 import '../theme/dims.dart';
-import '../theme/glass.dart';
 import '../theme/typography.dart';
-import 'glass_surface.dart';
+import 'oz_surface.dart';
 
 /// A pill-shaped search field. When [enabled] is false it renders as static
 /// placeholder text instead of an editable field, so [onTap] can be used to
 /// tap through to a dedicated search screen.
-class GlassSearchBar extends StatelessWidget {
+class OzSearchBar extends StatelessWidget {
   final String placeholder;
   final ValueChanged<String>? onSubmitted;
 
@@ -19,7 +18,7 @@ class GlassSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
   final TextEditingController? controller;
   final bool enabled;
-  const GlassSearchBar({
+  const OzSearchBar({
     super.key,
     this.placeholder = 'Поиск',
     this.onSubmitted,
@@ -50,9 +49,10 @@ class GlassSearchBar extends StatelessWidget {
 
     final bar = SizedBox(
       height: OzDims.searchBarHeight,
-      child: GlassSurface(
-        level: GlassLevel.surface,
+      child: OzSurface(
         radius: 999,
+        bordered: true,
+        shadowed: false,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Align(alignment: Alignment.centerLeft, child: content),
       ),

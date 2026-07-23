@@ -1,16 +1,15 @@
 import 'package:flutter/cupertino.dart';
 
 import '../theme/colors.dart';
-import '../theme/glass.dart';
-import 'glass_surface.dart';
+import 'oz_surface.dart';
 
-/// A tappable filter pill. Selected state tints accent color both in the
-/// label and via a faint accent overlay behind it.
-class GlassChip extends StatelessWidget {
+/// A tappable filter pill. Selected state fills solid accent-tint (no
+/// border); unselected is a bordered [OzSurface] pill with an ink label.
+class OzChip extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  const GlassChip({
+  const OzChip({
     super.key,
     required this.label,
     required this.selected,
@@ -20,9 +19,10 @@ class GlassChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = OzColors.accent.resolveFrom(context);
-    final pill = GlassSurface(
-      level: GlassLevel.overlay,
+    final pill = OzSurface(
       radius: 999,
+      bordered: !selected,
+      shadowed: false,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       child: DecoratedBox(
         decoration: BoxDecoration(

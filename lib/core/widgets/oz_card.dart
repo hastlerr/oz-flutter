@@ -5,15 +5,14 @@ import 'package:intl/intl.dart';
 import '../models/advertisement.dart';
 import '../theme/colors.dart';
 import '../theme/dims.dart';
-import '../theme/glass.dart';
 import '../theme/typography.dart';
-import 'glass_surface.dart';
+import 'oz_surface.dart';
 
 /// Emoji flag per `source_country` code, shown on the "under order" badge.
 ///
 /// TODO(domain-constants): move this to a shared domain-constants file once
 /// a second consumer (e.g. a country picker) needs it — kept local to
-/// [GlassCard] for now since it's the only user.
+/// [OzCard] for now since it's the only user.
 const countryFlags = {
   'kg': '🇰🇬',
   'kr': '🇰🇷',
@@ -23,20 +22,14 @@ const countryFlags = {
   'us': '🇺🇸',
 };
 
-/// Ad card for feeds.
-///
-/// Wrap feeds of these in `OzGlassLayer(level: GlassLevel.surface)` so all
-/// cards share one glass layer (perf: see oz_glass_layer.dart). The badge and
-/// favorite heart are deliberately *not* `GlassSurface`s themselves (they'd
-/// be `GlassLevel.overlay`, mismatched against a feed's `surface`-level
-/// `OzGlassLayer`, forcing each one to stand up its own extra shader layer —
-/// up to 2 per card, which defeats the point of the shared layer) — they're
-/// plain solid semi-opaque fills instead.
-class GlassCard extends StatelessWidget {
+/// Ad card for feeds — a solid, shadowed [OzSurface]. Content (the photo,
+/// the price) is the hero here; the card itself is just a plain elevated
+/// panel, not glass.
+class OzCard extends StatelessWidget {
   final Advertisement ad;
   final VoidCallback onTap;
   final VoidCallback? onFavorite; // null = heart hidden
-  const GlassCard({
+  const OzCard({
     super.key,
     required this.ad,
     required this.onTap,
@@ -51,8 +44,7 @@ class GlassCard extends StatelessWidget {
     final usd = usdValue == null ? '—' : _priceFormat.format(usdValue);
     return GestureDetector(
       onTap: onTap,
-      child: GlassSurface(
-        level: GlassLevel.surface,
+      child: OzSurface(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -96,10 +88,11 @@ class GlassCard extends StatelessWidget {
                       label: ad.isFavorite ? 'Убрать из избранного' : 'В избранное',
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: OzColors.paper
-                              .resolveFrom(context)
-                              .withValues(alpha: 0.82),
+                          color: OzColors.surface.resolveFrom(context),
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: OzColors.hairline.resolveFrom(context),
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8),
@@ -185,8 +178,9 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
         decoration: BoxDecoration(
-          color: OzColors.paper.resolveFrom(context).withValues(alpha: 0.82),
+          color: OzColors.surface.resolveFrom(context),
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: OzColors.hairline.resolveFrom(context)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

@@ -2,20 +2,19 @@ import 'package:flutter/cupertino.dart';
 
 import '../theme/colors.dart';
 import '../theme/dims.dart';
-import '../theme/glass.dart';
-import 'glass_surface.dart';
+import 'oz_surface.dart';
 
 /// A single-purpose call-to-action button.
 ///
 /// [filled] (the default) is a solid accent pill with a white label;
 /// disabled (`onPressed == null`) dims the accent to alpha 0.4. When
-/// [filled] is false it renders as a [GlassSurface] outline with an accent
-/// label instead.
-class GlassButton extends StatelessWidget {
+/// [filled] is false it renders as a bordered [OzSurface] outline with an
+/// accent label instead — no glass.
+class OzButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool filled;
-  const GlassButton({
+  const OzButton({
     super.key,
     required this.label,
     this.onPressed,
@@ -47,9 +46,10 @@ class GlassButton extends StatelessWidget {
           )
         : SizedBox(
             height: OzDims.buttonHeight,
-            child: GlassSurface(
-              level: GlassLevel.surface,
+            child: OzSurface(
               radius: OzDims.radius,
+              bordered: true,
+              shadowed: false,
               child: Center(
                 child: Text(
                   label,
