@@ -28,48 +28,49 @@ class GlassButton extends StatelessWidget {
     final disabled = onPressed == null;
     final labelColor = disabled ? accent.withValues(alpha: 0.4) : accent;
 
-    if (filled) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
-        child: Container(
-          height: 50,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: labelColor,
-            borderRadius: BorderRadius.circular(OzDims.radius),
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: CupertinoColors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
+    final Widget content = filled
+        ? Container(
+            height: OzDims.buttonHeight,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: labelColor,
+              borderRadius: BorderRadius.circular(OzDims.radius),
             ),
-          ),
-        ),
-      );
-    }
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onPressed,
-      child: SizedBox(
-        height: 50,
-        child: GlassSurface(
-          level: GlassLevel.surface,
-          radius: OzDims.radius,
-          child: Center(
             child: Text(
               label,
-              style: TextStyle(
-                color: labelColor,
+              style: const TextStyle(
+                color: CupertinoColors.white,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
             ),
-          ),
-        ),
+          )
+        : SizedBox(
+            height: OzDims.buttonHeight,
+            child: GlassSurface(
+              level: GlassLevel.surface,
+              radius: OzDims.radius,
+              child: Center(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: labelColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          );
+
+    return Semantics(
+      button: true,
+      enabled: !disabled,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: ExcludeSemantics(child: content),
       ),
     );
   }

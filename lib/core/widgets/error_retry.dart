@@ -6,6 +6,10 @@ import 'glass_button.dart';
 /// Standard "load failed" state: icon, message, and a retry button wired to
 /// [onRetry].
 class ErrorRetry extends StatelessWidget {
+  /// Intentionally not rendered anywhere in [build] — surfacing raw
+  /// exception text/types to end users is not useful copy. Kept on the
+  /// widget so callers can still log it (e.g. to crash reporting) alongside
+  /// showing this generic state.
   final Object error;
   final VoidCallback onRetry;
   const ErrorRetry({super.key, required this.error, required this.onRetry});

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../theme/colors.dart';
+import '../theme/dims.dart';
 import '../theme/glass.dart';
 import '../theme/typography.dart';
 import 'glass_surface.dart';
@@ -11,6 +12,10 @@ import 'glass_surface.dart';
 class GlassSearchBar extends StatelessWidget {
   final String placeholder;
   final ValueChanged<String>? onSubmitted;
+
+  /// Only meaningful when [enabled] is false: since there's no editable
+  /// field to focus in that mode, [onTap] is how callers wire up "tap this
+  /// static bar to navigate to a real search screen" instead.
   final VoidCallback? onTap;
   final TextEditingController? controller;
   final bool enabled;
@@ -44,7 +49,7 @@ class GlassSearchBar extends StatelessWidget {
     ]);
 
     final bar = SizedBox(
-      height: 46,
+      height: OzDims.searchBarHeight,
       child: GlassSurface(
         level: GlassLevel.surface,
         radius: 999,

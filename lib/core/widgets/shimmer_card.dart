@@ -18,6 +18,11 @@ class ShimmerCard extends StatelessWidget {
       child: Container(
         height: height,
         decoration: BoxDecoration(
+          // Shimmer.fromColors paints its shader as a mask over this fill,
+          // so only its opacity channel matters — white is a placeholder
+          // that stays fully opaque under the mask, not a design token
+          // pinned to the paper tones above (which the base/highlight
+          // colors already tie to).
           color: const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(OzDims.radius),
         ),

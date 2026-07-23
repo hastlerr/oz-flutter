@@ -20,28 +20,43 @@ class GlassChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = OzColors.accent.resolveFrom(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: GlassSurface(
-        level: GlassLevel.overlay,
-        radius: 999,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: selected ? accent.withValues(alpha: 0.14) : null,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: selected ? accent : OzColors.ink.resolveFrom(context),
-              ),
+    final pill = GlassSurface(
+      level: GlassLevel.overlay,
+      radius: 999,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: selected ? accent.withValues(alpha: 0.14) : null,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: selected ? accent : OzColors.ink.resolveFrom(context),
             ),
+          ),
+        ),
+      ),
+    );
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        // The pill's own visible padding is shorter than a comfortable tap
+        // target — this keeps the rendered pill unchanged while padding out
+        // the *hit area* to Apple HIG's ~44pt minimum.
+        child: ExcludeSemantics(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Center(child: pill),
           ),
         ),
       ),
