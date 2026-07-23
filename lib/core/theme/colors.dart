@@ -16,6 +16,16 @@ abstract final class OzColors {
   // semantic
   static const danger = Color(0xFFE05252);
 
+  // warm-minimalism solid surfaces (cards/buttons/chips/search/sheets): a
+  // notch "up" from paper so opaque content still reads as elevated without
+  // any translucency. Dark mode elevates via a lighter surface tone instead
+  // of a shadow (see OzShadows.card) — shadows don't read on a dark ground.
+  static const surfaceLight = Color(0xFFFFFFFF);
+  static const surfaceDark = Color(0xFF1E2420);
+  // 1px hairline border for the solid kit's `bordered` outline style.
+  static const hairlineLight = Color(0x14141413);
+  static const hairlineDark = Color(0x1FECEFEA);
+
   static const CupertinoDynamicColor accent =
       CupertinoDynamicColor.withBrightness(
           color: emeraldLight, darkColor: emeraldDark);
@@ -27,4 +37,10 @@ abstract final class OzColors {
   static const CupertinoDynamicColor inkSoft =
       CupertinoDynamicColor.withBrightness(
           color: inkSoftLight, darkColor: inkSoftDark);
+  static const CupertinoDynamicColor surface =
+      CupertinoDynamicColor.withBrightness(
+          color: surfaceLight, darkColor: surfaceDark);
+  static const CupertinoDynamicColor hairline =
+      CupertinoDynamicColor.withBrightness(
+          color: hairlineLight, darkColor: hairlineDark);
 }
